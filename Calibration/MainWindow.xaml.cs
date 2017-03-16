@@ -25,7 +25,7 @@ namespace Calibration
     public partial class MainWindow : IConnectionStateListener
     {
         private Screen activeScreen = Screen.PrimaryScreen;
-        private UpdateClass cursorControl;
+        private CursorControl cursorControl;
 
         private bool isCalibrated;
 

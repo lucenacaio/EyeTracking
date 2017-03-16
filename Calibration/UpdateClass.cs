@@ -10,15 +10,20 @@ using System.Windows.Forms;
 
 namespace Calibration
 {
-    public class UpdateClass : CursorControl
+    public class UpdateClass : CursorControl,IGazeListener
     {
 
         public UpdateClass(){}
         
         public UpdateClass(Screen screen, bool enabled, bool smooth) : base(screen,enabled,smooth){}
-        public void  OnGazeUpdate(GazeData gazeData)
+
+
+        public void OnGazeUpdate(GazeData gazeData)
         {
-            throw new NotImplementedException();
+            //TODO - Logica
+
+            Console.WriteLine(gazeData.LeftEye.RawCoordinates.X);
+            base.OnGazeUpdate(gazeData);
         }
     }
 }
