@@ -1,11 +1,4 @@
-﻿/*
- * Copyright (c) 2013-present, The Eye Tribe. 
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the LICENSE file in the root directory of this source tree. 
- *
- */
-using System;
+﻿using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
@@ -115,7 +108,7 @@ namespace Calibration
                 return;
 
             if (cursorControl == null)
-                cursorControl = new UpdateClass(activeScreen, true, true); // Lazy initialization
+                cursorControl = new MouseControll(activeScreen, true, true); // Lazy initialization
             else
                 cursorControl.Enabled = !cursorControl.Enabled; // Toggle on/off
 
