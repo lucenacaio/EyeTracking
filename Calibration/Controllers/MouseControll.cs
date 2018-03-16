@@ -22,12 +22,17 @@ namespace Calibration
 
         public void OnGazeUpdate(GazeData gazeData)
         {
-            //TODO - Logica
+            
             if(gazeData.LeftEye.RawCoordinates.X == 0 && gazeData.LeftEye.RawCoordinates.Y == 0
                 && gazeData.RightEye.RawCoordinates.X != 0 && gazeData.RightEye.RawCoordinates.Y != 0)
             {
-                ClickControll.Click(Cursor.Position.X, Cursor.Position.Y);
+                ClickControll.LeftClick(Cursor.Position.X, Cursor.Position.Y);
+            }else if (gazeData.RightEye.RawCoordinates.X == 0 && gazeData.RightEye.RawCoordinates.Y == 0
+                && gazeData.LeftEye.RawCoordinates.X != 0 && gazeData.LeftEye.RawCoordinates.Y != 0)
+            {
+                ClickControll.RightClick(Cursor.Position.X, Cursor.Position.Y);
             }
+
             base.OnGazeUpdate(gazeData);
         }
 

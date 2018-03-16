@@ -79,6 +79,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\Util.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

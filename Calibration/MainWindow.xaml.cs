@@ -20,8 +20,6 @@ namespace Calibration
         private Screen activeScreen = Screen.PrimaryScreen;
         private CursorControl cursorControl;
 
-        private bool isCalibrated;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -32,7 +30,8 @@ namespace Calibration
         private void InitClient()
         {
             // Activate/connect client
-            GazeManager.Instance.Activate(GazeManager.ApiVersion.VERSION_1_0, GazeManager.ClientMode.Push);
+
+            GazeManager.Instance.Activate();
 
             // Listen for changes in connection to server
             GazeManager.Instance.AddConnectionStateListener(this);
@@ -40,11 +39,16 @@ namespace Calibration
             // Fetch current status
             OnConnectionStateChanged(GazeManager.Instance.IsActivated);
 
-            // Add a fresh instance of the trackbox in case we reinitialize the client connection.
-            TrackingStatusGrid.Children.Clear();
-            TrackingStatusGrid.Children.Add(new TrackBoxStatus());
+            AddVisualInstanceTracker();
 
             UpdateState();
+        }
+
+
+        private void AddVisualInstanceTracker()
+        {
+            TrackingStatusGrid.Children.Clear();
+            TrackingStatusGrid.Children.Add(new TrackBoxStatus());
         }
 
         private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -104,8 +108,10 @@ namespace Calibration
 
         private void ButtonMouseClicked(object sender, RoutedEventArgs e)
         {
-            if (GazeManager.Instance.IsCalibrated == false)
+            if (GazeManager.Instance.IsCalibrated == false) {
+
                 return;
+            }
 
             if (cursorControl == null)
                 cursorControl = new MouseControll(activeScreen, true, true); // Lazy initialization
@@ -138,11 +144,10 @@ namespace Calibration
             // Show calibration results rating
             if (e.Result == CalibrationRunnerResult.Success)
             {
-                isCalibrated = true;
                 UpdateState();
             }
             else
-                MessageBox.Show(this, "Calibration failed, please try again");
+                MessageBox.Show(this, "Falha ao calibrar, por favor tente novamente");
         }
 
         private static void StartServerProcess()
@@ -150,7 +155,7 @@ namespace Calibration
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.WindowStyle = ProcessWindowStyle.Minimized;
             psi.FileName = GetServerExecutablePath();
-
+            psi.Arguments = "--framerate=60";
             if (psi.FileName == string.Empty || File.Exists(psi.FileName) == false)
                 return;
 
@@ -158,28 +163,26 @@ namespace Calibration
             processServer.StartInfo = psi;
             processServer.Start();
 
-            Thread.Sleep(3000); // wait for it to spin up
+            Thread.Sleep(5000); 
         }
 
         private static string GetServerExecutablePath()
         {
             // check default paths           
-            const string x86 = "C:\\Program Files (x86)\\EyeTribe\\Server\\EyeTribe.exe";
+            const string x86 = @"C:\Program Files (x86)\EyeTribe\Server\EyeTribe.exe";
             if (File.Exists(x86))
                 return x86;
 
-            const string x64 = "C:\\Program Files\\EyeTribe\\Server\\EyeTribe.exe";
+            const string x64 = @"C:\Program Files\EyeTribe\Server\EyeTribe.exe";
             if (File.Exists(x64))
                 return x64;
 
-            // Still not found, let user select file
+            
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".exe";
-            dlg.Title = "Please select the Eye Tribe server executable";
+            dlg.Title = "Por favor selecione o servidor Eye Tribe";
             dlg.Filter = "Executable Files (*.exe)|*.exe";
-
-            //if (dlg.ShowDialog() == true)
-            //    return dlg.FileName;
+            
 
             return string.Empty;
         }
@@ -204,35 +207,35 @@ namespace Calibration
             // No connection
             if (GazeManager.Instance.IsActivated == false)
             {
-                //btnCalibrate.Content = "Connect";
-                //btnMouse.Content = "";
-                //RatingText.Text = "";
-                //return;
                 if (!IsServerProcessRunning())
                 {
                     StartServerProcess();
+                    InitClient();
                 }
 
             }
+                
 
             if (GazeManager.Instance.IsCalibrated == false)
             {
-                btnCalibrate.Content = "Calibrate";
+                btnCalibrate.Content = "Calibrar";
             }
             else
             {
-                btnCalibrate.Content = "Recalibrate";
+                btnCalibrate.Content = "Recalibrar";
 
                 // Set mouse-button label
-                btnMouse.Content = "Mouse control On";
+                btnMouse.Content = "Ativar Controle";
 
                 if (cursorControl != null && cursorControl.Enabled)
-                    btnMouse.Content = "Mouse control Off";
+                    btnMouse.Content = "Desativar Controle";
 
                 if (GazeManager.Instance.LastCalibrationResult != null)
                     RatingText.Text = RatingFunction(GazeManager.Instance.LastCalibrationResult);
             }
         }
+
+   
 
         private string RatingFunction(CalibrationResult result)
         {
@@ -242,23 +245,28 @@ namespace Calibration
             double accuracy = result.AverageErrorDegree;
 
             if (accuracy < 0.5)
-                return "Calibration Quality: PERFECT";
+                return "Qualidade da calibragem: PERFEITA";
 
             if (accuracy < 0.7)
-                return "Calibration Quality: GOOD";
+                return "Qualidade da calibragem: BOA";
 
             if (accuracy < 1)
-                return "Calibration Quality: MODERATE";
+                return "Qualidade da calibragem: MODERADA";
 
             if (accuracy < 1.5)
-                return "Calibration Quality: POOR";
+                return "Qualidade da calibragem: BAIXA";
 
-            return "Calibration Quality: REDO";
+            return "Qualidade da calibragem: REFAZER";
         }
 
         private void WindowClosed(object sender, EventArgs e)
         {
             GazeManager.Instance.Deactivate();
+        }
+
+        private void btnOpenKeyBoard_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("osk.exe");
         }
     }
 }
