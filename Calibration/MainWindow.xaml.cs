@@ -155,7 +155,7 @@ namespace Calibration
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.WindowStyle = ProcessWindowStyle.Minimized;
             psi.FileName = GetServerExecutablePath();
-            psi.Arguments = "--framerate=60";
+            psi.Arguments = "--framerate=30";
             if (psi.FileName == string.Empty || File.Exists(psi.FileName) == false)
                 return;
 
